@@ -21,6 +21,11 @@ Sensor* sensor_create()
   return sensor;
 }
 
+void sensor_delete(Sensor* sensor)
+{
+  free(sensor);
+}
+
 void sensor_init()
 {
   ADMUX = 0x40;
@@ -38,12 +43,12 @@ void sensor_read(Sensor* sensor)
   sensor->value = ADCW;
 }
 
-uint16_t sensor_value(Sensor* sensor)
+uint16_t sensor_get_value(Sensor* sensor)
 {
   return sensor->value;
 }
 
-float sensor_value_cm(Sensor* sensor)
+float sensor_get_value_cm(Sensor* sensor)
 {
   float tensao = sensor->value * (5.0/1023.0);
   sensor->value_cm = 12.08 * pow(tensao, -1.058);

@@ -3,10 +3,8 @@
 
 #include <Arduino.h>
 
-void meu_servo_init();
+void servo_init();
 
 void servo_set_velocity(int velocity);
-
-unsigned long servo_get_duration_pwm();
 
 #endif
