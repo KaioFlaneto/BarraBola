@@ -1,59 +1,33 @@
 #include <stdlib.h>
+#include <avr/io.h>
 #include "meuservo.h"
 
 #define PIN_PWM PB1
-#define FREQ_PWM 20000 // 20 ms em microsec
 
-struct servo
+void meu_servo_init()
 {
-  int velocity;            // velocidade -100 a 100
-  unsigned long last_time; // tempo ultimo pulso
-};
+  DDRB |= (1 << PB1);  // configura pino 9 como saida
 
-Servo* servo_create()
-{
-  Servo* servo = malloc(sizeof(Servo));
-  servo->velocity = 0;
-  servo->last_time = 0;
+  TCCR1A = 0;
+  TCCR1B = 0;
+  TCCR1A |= (1 << WGM11);
+  TCCR1B |= (1 << WGM13) | (1 << WGM12);
+  TCCR1A |= (1 << COM1A1);
+  TCCR1B |= (1 << CS11);
+  ICR1 = 39999;
 
-  return servo;
+  OCR1A = 3000; // equivalente a 1.5ms, pois cada tick do timer vale 2 microsec
 }
 
-void servo_destroy(Servo* servo)
-{
-  free(servo);
-}
-
-void servo_attach(Servo* servo)
-{
-  DDRB |= (1 << PIN_PWM); // PINO 9 OUTPUT
-  servo->last_time = micros();
-}
-
-void servo_move(Servo* servo, int velocity)
+void servo_set_velocity(int velocity)
 {
   if(velocity < -100) velocity = -100;
   if(velocity >  100) velocity = 100;
 
-  servo->velocity = velocity;
+  OCR1A = (3000 + velocity*10);
 }
 
-const void servo_update(Servo* servo)
+unsigned long servo_get_duration_pwm()
 {
-  unsigned long current_time = micros();
-  if((current_time - servo->last_time) < FREQ_PWM)
-  {
-    return;
-  }
-
-  servo->last_time = current_time;
-
-  unsigned long duration_pwm = 1500 + (servo->velocity*5);
-  
-  PORTB |= (1 << PIN_PWM);
-  unsigned long start_pulse = micros();
-  while((micros() - start_pulse) < duration_pwm);
-  PORTB &= ~(1 << PIN_PWM);
-
-  return;
+  return OCR1A;
 }

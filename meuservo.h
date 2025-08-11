@@ -3,16 +3,10 @@
 
 #include <Arduino.h>
 
-typedef struct servo Servo;
+void meu_servo_init();
 
-Servo* servo_create();
+void servo_set_velocity(int velocity);
 
-void servo_destroy(Servo* servo);
-
-void servo_attach(Servo* servo);
-
-void servo_move(Servo* servo, int velocity);
-
-const void servo_update(Servo* servo);
+unsigned long servo_get_duration_pwm();
 
 #endif
